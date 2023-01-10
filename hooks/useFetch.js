@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { toast } from 'react-toastify';
 import { getSessions } from '../utils/auth';
 
 export default function useFetch() {
@@ -40,7 +41,10 @@ export default function useFetch() {
       // Unauthorized || Invalid Token || Expired Token
       if (status === 401) router.reload();
 
-      return { message: data?.message || 'Failed Fetch Data', data, status };
+      const message = data?.message || 'Failed Fetch Data';
+
+      toast.error(message);
+      return { message, data, status };
     }
   };
 

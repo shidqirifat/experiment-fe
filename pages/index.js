@@ -1,6 +1,7 @@
 import React from 'react';
 import useAuth from '../hooks/useAuth';
 import useForm from '../hooks/useForm';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Home() {
   const { login } = useAuth();
