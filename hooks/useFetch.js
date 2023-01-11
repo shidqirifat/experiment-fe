@@ -6,9 +6,9 @@ import { getSessions } from '../utils/auth';
 export default function useFetch() {
   const router = useRouter();
 
-  const fetch = async ({ url, params, data, type, withToken = true }) => {
+  const fetch = async ({ url, params, data, type, withToken = true, isExternalUrl = false }) => {
     // eslint-disable-next-line no-undef
-    const endpoint = `${process.env.NEXT_PUBLIC_API_URL}${url}`;
+    const endpoint = isExternalUrl ? url : `${process.env.NEXT_PUBLIC_API_URL}${url}`;
 
     const user = withToken && getSessions();
     const option = {
