@@ -1,6 +1,8 @@
+import { useDidUpdate, usePrevious } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import Button from 'components/Button';
 import Character from 'components/Character';
+import useDebounce from 'hooks/useDebounce';
 import useFetch from 'hooks/useFetch';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
@@ -11,39 +13,63 @@ export default function characters() {
   const router = useRouter();
   const { fetch } = useFetch();
   const [page, setPage] = useState(null);
+  const [name, setName] = useState('');
+  const debaunceKeyword = useDebounce(name, 1000);
+  const prevKeyword = usePrevious(router.query?.keyword || debaunceKeyword || '');
+
+  const handleChangeKeyword = (e) => setName(e.target.value);
 
   const getCharacters = async () => {
-    if (!page) return;
+    if (!router.isReady) return;
 
-    router.push({ query: { page } }, undefined, { scroll: false });
+    router.push({ query: { page, keyword: name } }, undefined, { scroll: false });
     const { data } = await fetch({
       type: 'GET',
       url: ENDPOINT,
       params: {
-        page
+        page,
+        name
       },
       isExternalUrl: true
     });
+
     return data;
   };
 
   const { data: characters, isInitialLoading } = useQuery({
-    queryKey: ['characters', page],
+    queryKey: ['characters', { page, name: debaunceKeyword }],
     queryFn: getCharacters,
-    keepPreviousData: true
+    keepPreviousData: true,
+    enabled: !!page
   });
 
   useEffect(() => {
     if (!router.isReady) return;
 
     setPage(Number(router.query?.page) || 1);
+    setName(router.query?.keyword || '');
   }, [router]);
 
-  if (isInitialLoading) return <h2>Loading...</h2>;
+  useDidUpdate(() => {
+    if (prevKeyword === debaunceKeyword) return;
+
+    setPage(1);
+  }, [debaunceKeyword]);
+
+  if (!router.isReady || isInitialLoading) return <h2>Loading...</h2>;
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-4 mx-20 mt-16">
+      <div className="mt-16 mb-6 mx-20">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={name}
+          onChange={handleChangeKeyword}
+          className="border border-slate-400 w-80 mx-auto block rounded-md py-1 px-2"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-4 mx-20">
         {characters?.results?.map((character) => (
           <Character key={character.id} character={character} />
         ))}
