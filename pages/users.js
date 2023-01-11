@@ -1,6 +1,6 @@
+import useAuth from 'hooks/useAuth';
 import React, { useEffect, useState } from 'react';
-import useAuth from '../hooks/useAuth';
-import { getSessions } from '../utils/auth';
+import { getSessions } from 'utils/auth';
 
 export default function Users() {
   const [user, setUser] = useState('');
