@@ -2,15 +2,20 @@ import { useQuery } from '@tanstack/react-query';
 import Button from 'components/Button';
 import Character from 'components/Character';
 import useFetch from 'hooks/useFetch';
-import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
 
 const ENDPOINT = 'https://rickandmortyapi.com/api/character';
 
 export default function characters() {
+  const router = useRouter();
   const { fetch } = useFetch();
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(null);
 
   const getCharacters = async () => {
+    if (!page) return;
+
+    router.push({ query: { page } }, undefined, { scroll: false });
     const { data } = await fetch({
       type: 'GET',
       url: ENDPOINT,
@@ -27,6 +32,12 @@ export default function characters() {
     queryFn: getCharacters,
     keepPreviousData: true
   });
+
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    setPage(Number(router.query?.page) || 1);
+  }, [router]);
 
   if (isInitialLoading) return <h2>Loading...</h2>;
 
