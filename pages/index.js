@@ -1,21 +1,21 @@
 import React from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import useAuth from 'hooks/useAuth';
-import useForm from 'hooks/useForm';
+import useInput from 'hooks/useInput';
 
 export default function Home() {
   const { login } = useAuth();
-  const { form, handleChange } = useForm({
+  const { input, handleChange } = useInput({
     email: '',
     password: ''
   });
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    login(form);
+    login(input);
   };
 
-  const disabledLoginBtn = Object.values(form).some((value) => !value);
+  const disabledLoginBtn = Object.values(input).some((value) => !value);
 
   return (
     <div className="grid place-content-center h-screen bg-slate-100">
@@ -27,7 +27,7 @@ export default function Home() {
           <input
             type="text"
             name="email"
-            value={form.email}
+            value={input.email}
             onChange={handleChange}
             className="rounded-md py-1 px-2"
           />
@@ -38,7 +38,7 @@ export default function Home() {
           <input
             type="password"
             name="password"
-            value={form.password}
+            value={input.password}
             onChange={handleChange}
             className="rounded-md py-1 px-2"
           />
